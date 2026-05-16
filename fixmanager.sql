@@ -237,4 +237,4 @@ SET @fac_id = (SELECT id FROM factura WHERE reparacion_id = @rep_id);
 UPDATE factura SET estado = 'PAGADA', metodo_pago = 'EFECTIVO' WHERE id IN (@fac_id, @fac_id + 3, @fac_id + 4, @fac_id + 6, @fac_id + 9);
 UPDATE factura SET estado = 'PAGADA', metodo_pago = 'TRANSFERENCIA' WHERE id IN (@fac_id + 2, @fac_id + 5);
 
-SELECT * FROM recepcion_entrega;
+SELECT * FROM usuario;
