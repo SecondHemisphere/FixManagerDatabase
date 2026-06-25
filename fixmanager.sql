@@ -7,7 +7,7 @@ CREATE TABLE usuario (
     nombre VARCHAR(100) NOT NULL,
     correo VARCHAR(100) NOT NULL UNIQUE,
     contrasena VARCHAR(255) NOT NULL,
-    rol ENUM('ADMIN','TECNICO','CAJERO') NOT NULL,
+    rol ENUM('ADMIN','RECEPCIONISTA','TECNICO','CAJERO') NOT NULL,
     activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
@@ -25,7 +25,6 @@ CREATE TABLE equipo_movil (
     modelo VARCHAR(50) NOT NULL,
     imei VARCHAR(20) NOT NULL UNIQUE,
     tipo VARCHAR(30) NOT NULL,
-    descripcion_danio TEXT,
     cliente_id INT NOT NULL,
     FOREIGN KEY (cliente_id) REFERENCES cliente(id)
 );
@@ -112,18 +111,39 @@ END$$
 DELIMITER ;
 
 INSERT INTO usuario (nombre, correo, contrasena, rol, activo) VALUES
-('Administrador General', 'admin@fixmanager.com', 'admin2026', 'ADMIN', TRUE),
-('Roberto Anchundia', 'ranchundia@fixmanager.com', 'techguayas2026', 'TECNICO', TRUE),
-('Diana Villamar', 'dvillamar@fixmanager.com', 'dvillacaja26', 'CAJERO', TRUE),
-('Christian Coello', 'ccoello@fixmanager.com', 'reparaexpress9', 'TECNICO', TRUE),
-('Nathaly Barzola', 'nbarzola@fixmanager.com', 'natycaja2026', 'CAJERO', TRUE),
-('Geovanny Pincay', 'gpincay@fixmanager.com', 'geotechmaster', 'TECNICO', TRUE);
+('Administrador General', 'admin@fixmanager.ec', 'admin2026', 'ADMIN', TRUE),
 
-SET @tecnico1 = (SELECT id FROM usuario WHERE correo = 'ranchundia@fixmanager.com');
-SET @cajero1  = (SELECT id FROM usuario WHERE correo = 'dvillamar@fixmanager.com');
-SET @tecnico2 = (SELECT id FROM usuario WHERE correo = 'ccoello@fixmanager.com');
-SET @cajero2  = (SELECT id FROM usuario WHERE correo = 'nbarzola@fixmanager.com');
-SET @tecnico3 = (SELECT id FROM usuario WHERE correo = 'gpincay@fixmanager.com');
+('Carlos Mena', 'cmena@fixmanager.ec', 'cmn48a2', 'RECEPCIONISTA', TRUE),
+('José Almeida', 'jalmeida@fixmanager.ec', 'alm73k1', 'RECEPCIONISTA', TRUE),
+('María Quishpe', 'mquishpe@fixmanager.ec', 'qsp91m4', 'RECEPCIONISTA', TRUE),
+
+('Geovanny Pincay', 'gpincay@fixmanager.ec', 'gpc28z7', 'TECNICO', TRUE),
+('Christian Coello', 'ccoello@fixmanager.ec', 'col56t3', 'TECNICO', TRUE),
+('Roberto Anchundia', 'ranchundia@fixmanager.ec', 'anc84p9', 'TECNICO', TRUE),
+('Luis Zambrano', 'lzambrano@fixmanager.ec', 'zbr12m6', 'TECNICO', TRUE),
+
+('Nathaly Barzola', 'nbarzola@fixmanager.ec', 'brz77c2', 'CAJERO', TRUE),
+('Diana Villamar', 'dvillamar@fixmanager.ec', 'vll39d8', 'CAJERO', TRUE),
+('Fernando Cedeño', 'fcedeno@fixmanager.ec', 'cdn64k5', 'CAJERO', TRUE);
+
+-- RECEPCIONISTAS
+SET @recep1 = (SELECT id FROM usuario WHERE correo = 'cmena@fixmanager.ec');
+SET @recep2 = (SELECT id FROM usuario WHERE correo = 'jalmeida@fixmanager.ec');
+SET @recep3 = (SELECT id FROM usuario WHERE correo = 'mquishpe@fixmanager.ec');
+
+-- TÉCNICOS
+SET @tecnico1 = (SELECT id FROM usuario WHERE correo = 'gpincay@fixmanager.ec');
+SET @tecnico2 = (SELECT id FROM usuario WHERE correo = 'ccoello@fixmanager.ec');
+SET @tecnico3 = (SELECT id FROM usuario WHERE correo = 'ranchundia@fixmanager.ec');
+SET @tecnico4 = (SELECT id FROM usuario WHERE correo = 'lzambrano@fixmanager.ec');
+
+-- CAJEROS
+SET @cajero1 = (SELECT id FROM usuario WHERE correo = 'nbarzola@fixmanager.ec');
+SET @cajero2 = (SELECT id FROM usuario WHERE correo = 'dvillamar@fixmanager.ec');
+SET @cajero3 = (SELECT id FROM usuario WHERE correo = 'fcedeno@fixmanager.ec');
+
+-- ADMIN
+SET @admin = (SELECT id FROM usuario WHERE correo = 'admin@fixmanager.ec');
 
 INSERT INTO cliente (nombre, correo, telefono, direccion) VALUES
 ('Jefferson Mendoza', 'jmendoza.ec@gmail.com', '0981234567', 'Guayaquil - Sauces 4'),
@@ -140,61 +160,65 @@ INSERT INTO cliente (nombre, correo, telefono, direccion) VALUES
 
 SET @cl_id = (SELECT id FROM cliente WHERE correo = 'jmendoza.ec@gmail.com');
 
-INSERT INTO equipo_movil (marca, modelo, imei, tipo, descripcion_danio, cliente_id) VALUES
-('Samsung', 'Galaxy A54', '359874123654120', 'Celular', 'Pantalla trizada y líneas verdes', @cl_id),
-('Apple', 'iPhone 14 Pro', '354125896321475', 'Celular', 'Batería inflada, bucle de logo', @cl_id + 1),
-('Xiaomi', 'Redmi Note 12 Pro', '357412589632144', 'Celular', 'Caída en agua sulfatado', @cl_id + 2),
-('Samsung', 'Galaxy Tab S8', '352147896325411', 'Tablet', 'Pin de carga tipo C roto', @cl_id + 3),
-('Motorola', 'Moto G84', '358963214752148', 'Celular', 'No da imagen, vibra y timbra', @cl_id + 4),
-('Honor', 'Magic 5 Lite', '356321478596214', 'Celular', 'Vidrio de cámara posterior roto', @cl_id + 5),
-('Infinix', 'Hot 30i', '351478523698412', 'Celular', 'Botón encendido hundido', @cl_id + 6),
-('Apple', 'iPad Air 5', '359632147854123', 'Tablet', 'No reconoce Wi-Fi ni Bluetooth', @cl_id + 7),
-('Tecno', 'Pova 5', '354785214796321', 'Celular', 'Se recalienta al cargar', @cl_id + 8),
-('Xiaomi', 'Poco F5 Pro', '358741236985214', 'Celular', 'Error de software modo brick', @cl_id + 9),
-('Samsung', 'Galaxy S23 Ultra', '352369874125478', 'Celular', 'Tapa trasera de vidrio rota', @cl_id + 10),
-('Apple', 'iPhone 11', '351122334455667', 'Celular', 'Micrófono principal no funciona', @cl_id),
-('Xiaomi', 'Redmi 10', '352233445566778', 'Celular', 'Puerto de carga flojo', @cl_id + 1),
-('Samsung', 'Galaxy A34', '353344556677889', 'Celular', 'Cambio de tapa y batería', @cl_id + 2),
-('Motorola', 'Edge 40', '354455667788990', 'Celular', 'Pantalla rota por presión', @cl_id + 3),
-('Huawei', 'P30 Lite', '355566778899001', 'Celular', 'No detecta tarjeta SIM', @cl_id + 4),
-('Realme', 'C55', '356677889900112', 'Celular', 'Luz de pantalla parpadea', @cl_id + 5),
-('Google', 'Pixel 7 Pro', '357788990011223', 'Celular', 'Cámara trasera borrosa', @cl_id + 6),
-('Samsung', 'Galaxy A14', '358899001122334', 'Celular', 'Olvido de patrón de desbloqueo', @cl_id + 7),
-('Apple', 'iPhone 13', '359900112233445', 'Celular', 'Auricular llamadas suena muy bajo', @cl_id + 8),
-('Xiaomi', 'Note 11S', '350011223344556', 'Celular', 'No enciende tras descarga total', @cl_id + 9),
-('Oppo', 'Reno 10', '351234567890123', 'Celular', 'Vidrio templado pegado con brujita', @cl_id + 10),
-('Samsung', 'Galaxy Tab A8', '352345678901234', 'Tablet', 'Pantalla táctil no responde', @cl_id),
-('Motorola', 'Moto G54', '353456789012345', 'Celular', 'Parches de humedad internos', @cl_id + 1),
-('Honor', 'X8a', '354567890123456', 'Celular', 'Carcasa intermedia doblada', @cl_id + 2);
+INSERT INTO equipo_movil (marca, modelo, imei, tipo, cliente_id) VALUES
+('Samsung', 'Galaxy A54', '359874123654120', 'Celular', @cl_id),
+('Apple', 'iPhone 14 Pro', '354125896321475', 'Celular', @cl_id + 1),
+('Xiaomi', 'Redmi Note 12 Pro', '357412589632144', 'Celular', @cl_id + 2),
+('Samsung', 'Galaxy Tab S8', '352147896325411', 'Tablet', @cl_id + 3),
+('Motorola', 'Moto G84', '358963214752148', 'Celular', @cl_id + 4),
+('Honor', 'Magic 5 Lite', '356321478596214', 'Celular', @cl_id + 5),
+('Infinix', 'Hot 30i', '351478523698412', 'Celular', @cl_id + 6),
+('Apple', 'iPad Air 5', '359632147854123', 'Tablet', @cl_id + 7),
+('Tecno', 'Pova 5', '354785214796321', 'Celular', @cl_id + 8),
+('Xiaomi', 'Poco F5 Pro', '358741236985214', 'Celular', @cl_id + 9),
+('Samsung', 'Galaxy S23 Ultra', '352369874125478', 'Celular', @cl_id + 10),
+('Apple', 'iPhone 11', '351122334455667', 'Celular', @cl_id),
+('Xiaomi', 'Redmi 10', '352233445566778', 'Celular', @cl_id + 1),
+('Samsung', 'Galaxy A34', '353344556677889', 'Celular', @cl_id + 2),
+('Motorola', 'Edge 40', '354455667788990', 'Celular', @cl_id + 3),
+('Huawei', 'P30 Lite', '355566778899001', 'Celular', @cl_id + 4),
+('Realme', 'C55', '356677889900112', 'Celular', @cl_id + 5),
+('Google', 'Pixel 7 Pro', '357788990011223', 'Celular', @cl_id + 6),
+('Samsung', 'Galaxy A14', '358899001122334', 'Celular', @cl_id + 7),
+('Apple', 'iPhone 13', '359900112233445', 'Celular', @cl_id + 8),
+('Xiaomi', 'Note 11S', '350011223344556', 'Celular', @cl_id + 9),
+('Oppo', 'Reno 10', '351234567890123', 'Celular', @cl_id + 10),
+('Samsung', 'Galaxy Tab A8', '352345678901234', 'Tablet', @cl_id),
+('Motorola', 'Moto G54', '353456789012345', 'Celular', @cl_id + 1),
+('Honor', 'X8a', '354567890123456', 'Celular', @cl_id + 2);
 
 SET @eq_id = (SELECT id FROM equipo_movil WHERE imei = '359874123654120');
 
 INSERT INTO recepcion_entrega (equipo_id, usuario_id, problema_reportado) VALUES
-(@eq_id, @cajero1, 'Cambio de módulo de pantalla completo por golpe'),
-(@eq_id + 1, @cajero1, 'Cambio de batería de alta calidad'),
-(@eq_id + 2, @cajero1, 'Mantenimiento preventivo por humedad'),
-(@eq_id + 3, @cajero1, 'Reemplazo de pin de carga soldado a placa'),
-(@eq_id + 4, @cajero2, 'Diagnóstico de pantalla o posible daño flex'),
-(@eq_id + 5, @cajero2, 'Reemplazo del cristal protector de cámara'),
-(@eq_id + 6, @cajero2, 'Cambio de flex interno de botones físicos'),
-(@eq_id + 7, @cajero1, 'Revisión de antena IC de Wi-Fi'),
-(@eq_id + 8, @cajero2, 'Cambio de puerto de carga y regulador'),
-(@eq_id + 9, @cajero1, 'Flasheo de firmware oficial'),
-(@eq_id + 10, @cajero2, 'Instalación de tapa trasera original'),
-(@eq_id + 11, @cajero1, 'Reemplazo de micrófono inferior'),
-(@eq_id + 12, @cajero2, 'Cambio de subplaca de carga completa'),
-(@eq_id + 13, @cajero1, 'Cambio estético y funcional de batería y tapa'),
-(@eq_id + 14, @cajero2, 'Cambio de pantalla OLED curva'),
-(@eq_id + 15, @cajero1, 'Reparación de lector de SIM card'),
-(@eq_id + 16, @cajero2, 'Revisión de circuito integrado de retroiluminación'),
-(@eq_id + 17, @cajero1, 'Cambio de módulo de cámaras traseras'),
-(@eq_id + 18, @cajero2, 'Remoción de cuenta e instalación limpia'),
-(@eq_id + 19, @cajero1, 'Limpieza profunda y cambio de auricular'),
-(@eq_id + 20, @cajero2, 'Revivió de batería estática por fuente externa'),
-(@eq_id + 21, @cajero1, 'Remoción de vidrio con calor controlado'),
-(@eq_id + 22, @cajero2, 'Cambio de digitalizador de pantalla'),
-(@eq_id + 23, @cajero1, 'Mantenimiento completo por sudor/humedad'),
-(@eq_id + 24, @cajero2, 'Enderezado de chasis estructural');
+(@eq_id, @recep1, 'Cliente indica que el equipo se apagó repentinamente y ya no enciende'),
+(@eq_id + 1, @recep1, 'Cliente reporta que el teléfono se descarga muy rápido y se apaga al 30%'),
+(@eq_id + 2, @recep1, 'Cliente menciona que el equipo se reinicia constantemente sin razón aparente'),
+(@eq_id + 3, @recep1, 'Cliente indica que el dispositivo no carga al conectarlo al cargador'),
+(@eq_id + 4, @recep2, 'Cliente reporta que la pantalla no muestra imagen pero el equipo vibra'),
+
+(@eq_id + 5, @recep2, 'Cliente menciona daño en la cámara trasera (vidrio roto)'),
+(@eq_id + 6, @recep2, 'Cliente indica que el botón de encendido no responde correctamente'),
+(@eq_id + 7, @recep3, 'Cliente reporta que el equipo no detecta redes WiFi ni Bluetooth'),
+(@eq_id + 8, @recep3, 'Cliente indica sobrecalentamiento excesivo al cargar el dispositivo'),
+(@eq_id + 9, @recep1, 'Cliente menciona que el equipo quedó en logo y no inicia sistema'),
+
+(@eq_id + 10, @recep2, 'Cliente reporta daño físico en la tapa trasera del equipo'),
+(@eq_id + 11, @recep1, 'Cliente indica que el micrófono no funciona durante llamadas'),
+(@eq_id + 12, @recep3, 'Cliente menciona que el puerto de carga está flojo o intermitente'),
+(@eq_id + 13, @recep1, 'Cliente reporta batería inflada y tapa despegada'),
+(@eq_id + 14, @recep2, 'Cliente indica que la pantalla está rota y no responde al tacto'),
+
+(@eq_id + 15, @recep3, 'Cliente reporta que no reconoce la tarjeta SIM'),
+(@eq_id + 16, @recep2, 'Cliente menciona fallas en la iluminación de la pantalla'),
+(@eq_id + 17, @recep1, 'Cliente indica problemas en la cámara trasera (imagen borrosa)'),
+(@eq_id + 18, @recep2, 'Cliente reporta bloqueo del dispositivo por cuenta o patrón'),
+(@eq_id + 19, @recep3, 'Cliente indica que el auricular se escucha muy bajo'),
+
+(@eq_id + 20, @recep3, 'Cliente menciona que el equipo no enciende después de descarga total'),
+(@eq_id + 21, @recep1, 'Cliente reporta daño en el vidrio o pantalla externa'),
+(@eq_id + 22, @recep2, 'Cliente indica que la pantalla táctil no responde correctamente'),
+(@eq_id + 23, @recep3, 'Cliente menciona humedad interna en el dispositivo'),
+(@eq_id + 24, @recep3, 'Cliente reporta que el chasis está doblado o deformado');
 
 SET @rec_id = (SELECT id FROM recepcion_entrega WHERE equipo_id = @eq_id);
 
@@ -202,18 +226,18 @@ INSERT INTO reparacion (diagnostico, solucion, costo_repuestos, piezas_usadas, e
 ('Pantalla OLED rota internamente', 'Instalación de nueva pantalla original', 65.00, 'Pantalla Samsung A54', 'PENDIENTE', @rec_id, @tecnico1),
 ('Batería degradada al 68%', 'Reemplazo de batería homologada', 30.00, 'Batería iPhone 14P', 'PENDIENTE', @rec_id + 1, @tecnico2),
 ('Cortocircuito menor en línea secundaria', 'Baño químico ultrasónico y resoldaje', 15.00, 'Alcohol Isopropílico', 'PENDIENTE', @rec_id + 2, @tecnico1),
-('Pistas del pin de carga desprendidas', 'Micro-soldadura de puerto tipo C', 8.00, 'Puerto Tipo C Genérico', 'PENDIENTE', @rec_id + 3, @tecnico2),
+('Pistas del pin de carga desprendidas', 'Micro-soldadura de puerto tipo C', 8.00, 'Puerto Tipo C Genérico', 'PENDIENTE', @rec_id + 3, @tecnico4),
 ('Flex de pantalla desconectado', 'Limpieza de conectores y sujeción', 5.00, 'Cinta térmica', 'PENDIENTE', @rec_id + 4, @tecnico1),
 ('Lente protector fisurado', 'Extracción manual e instalación repuesto', 4.00, 'Lente de cámara Honor', 'PENDIENTE', @rec_id + 5, @tecnico3),
 ('Flex de encendido roto en base', 'Reemplazo de componente completo', 7.00, 'Flex Power Infinix', 'PENDIENTE', @rec_id + 6, @tecnico3),
 ('Módulo IC de Wi-Fi desoldado', 'Proceso de reballing al chip', 0.00, 'Esferas de estaño', 'PENDIENTE', @rec_id + 7, @tecnico2),
-('IC de carga dañado por voltaje', 'Reemplazo del integrado en placa', 12.00, 'Chip IC de carga', 'PENDIENTE', @rec_id + 8, @tecnico1),
+('IC de carga dañado por voltaje', 'Reemplazo del integrado en placa', 12.00, 'Chip IC de carga', 'PENDIENTE', @rec_id + 8, @tecnico4),
 ('Bucle de sistema por actualización', 'Carga de sistema operativo EDL', 0.00, 'Firmware Oficial', 'PENDIENTE', @rec_id + 9, @tecnico2),
 ('Tapa de vidrio pulverizada', 'Instalación de tapa con B7000', 18.00, 'Tapa trasera S23U', 'PENDIENTE', @rec_id + 10, @tecnico3),
 ('Micrófono obstruido por sarro', 'Cambio físico de micrófono SMD', 3.00, 'Micrófono iPhone 11', 'PENDIENTE', @rec_id + 11, @tecnico1),
 ('Pin con desgaste físico interno', 'Cambio de placa de carga inferior', 6.00, 'Subplaca Redmi 10', 'PENDIENTE', @rec_id + 12, @tecnico2),
 ('Batería inflada y tapa despegada', 'Instalación de repuestos nuevos', 22.00, 'Batería y Tapa A34', 'PENDIENTE', @rec_id + 13, @tecnico3),
-('Pantalla rota en esquinas curvas', 'Reemplazo de panel curvo completo', 95.00, 'Pantalla Edge 40', 'PENDIENTE', @rec_id + 14, @tecnico1);
+('Pantalla rota en esquinas curvas', 'Reemplazo de panel curvo completo', 95.00, 'Pantalla Edge 40', 'PENDIENTE', @rec_id + 14, @tecnico4);
 
 SET @rep_id = (SELECT id FROM reparacion WHERE recepcion_id = @rec_id);
 
@@ -222,14 +246,14 @@ UPDATE reparacion SET estado = 'EN_PROCESO' WHERE id IN (@rep_id + 10, @rep_id +
 
 INSERT INTO factura (reparacion_id, usuario_id, costo_total, estado, observaciones, metodo_pago) VALUES
 (@rep_id, @cajero1, 110.00, 'PENDIENTE', 'Garantía de 3 meses por pantalla', 'EFECTIVO'),
-(@rep_id + 1, @cajero1, 55.00, 'PENDIENTE', 'Retiro pactado fin de semana', 'TARJETA'),
-(@rep_id + 2, @cajero1, 45.00, 'PENDIENTE', 'Recomendación estuche impermeable', 'TRANSFERENCIA'),
+(@rep_id + 1, @cajero3, 55.00, 'PENDIENTE', 'Retiro pactado fin de semana', 'TARJETA'),
+(@rep_id + 2, @cajero3, 45.00, 'PENDIENTE', 'Recomendación estuche impermeable', 'TRANSFERENCIA'),
 (@rep_id + 3, @cajero2, 30.00, 'PENDIENTE', 'Pin reforzado con epóxica', 'EFECTIVO'),
 (@rep_id + 4, @cajero2, 25.00, 'PENDIENTE', 'Solo mano de obra', 'EFECTIVO'),
 (@rep_id + 5, @cajero2, 15.00, 'PENDIENTE', 'Limpieza general de cortesía', 'TRANSFERENCIA'),
-(@rep_id + 6, @cajero1, 25.00, 'PENDIENTE', 'Pulsadores probados', 'EFECTIVO'),
+(@rep_id + 6, @cajero3, 25.00, 'PENDIENTE', 'Pulsadores probados', 'EFECTIVO'),
 (@rep_id + 7, @cajero1, 60.00, 'PENDIENTE', 'Trabajo complejo microelectrónica', 'TARJETA'),
-(@rep_id + 8, @cajero2, 40.00, 'PENDIENTE', 'No usar cargador genérico', 'TRANSFERENCIA'),
+(@rep_id + 8, @cajero1, 40.00, 'PENDIENTE', 'No usar cargador genérico', 'TRANSFERENCIA'),
 (@rep_id + 9, @cajero2, 20.00, 'PENDIENTE', 'Flasheo exitoso', 'EFECTIVO');
 
 SET @fac_id = (SELECT id FROM factura WHERE reparacion_id = @rep_id);
