@@ -244,21 +244,20 @@ SET @rep_id = (SELECT id FROM reparacion WHERE recepcion_id = @rec_id);
 UPDATE reparacion SET estado = 'FINALIZADO' WHERE id IN (@rep_id, @rep_id + 1, @rep_id + 2, @rep_id + 3, @rep_id + 4, @rep_id + 5, @rep_id + 6, @rep_id + 7, @rep_id + 8, @rep_id + 9);
 UPDATE reparacion SET estado = 'EN_PROCESO' WHERE id IN (@rep_id + 10, @rep_id + 11, @rep_id + 12);
 
-INSERT INTO factura (reparacion_id, usuario_id, costo_total, estado, observaciones, metodo_pago) VALUES
-(@rep_id, @cajero1, 110.00, 'PENDIENTE', 'Garantía de 3 meses por pantalla', 'EFECTIVO'),
-(@rep_id + 1, @cajero3, 55.00, 'PENDIENTE', 'Retiro pactado fin de semana', 'TARJETA'),
-(@rep_id + 2, @cajero3, 45.00, 'PENDIENTE', 'Recomendación estuche impermeable', 'TRANSFERENCIA'),
-(@rep_id + 3, @cajero2, 30.00, 'PENDIENTE', 'Pin reforzado con epóxica', 'EFECTIVO'),
-(@rep_id + 4, @cajero2, 25.00, 'PENDIENTE', 'Solo mano de obra', 'EFECTIVO'),
-(@rep_id + 5, @cajero2, 15.00, 'PENDIENTE', 'Limpieza general de cortesía', 'TRANSFERENCIA'),
-(@rep_id + 6, @cajero3, 25.00, 'PENDIENTE', 'Pulsadores probados', 'EFECTIVO'),
-(@rep_id + 7, @cajero1, 60.00, 'PENDIENTE', 'Trabajo complejo microelectrónica', 'TARJETA'),
-(@rep_id + 8, @cajero1, 40.00, 'PENDIENTE', 'No usar cargador genérico', 'TRANSFERENCIA'),
-(@rep_id + 9, @cajero2, 20.00, 'PENDIENTE', 'Flasheo exitoso', 'EFECTIVO');
+INSERT INTO factura
+(reparacion_id, usuario_id, costo_total, estado, observaciones, metodo_pago)
+VALUES
+(@rep_id,     @cajero1, 110.00, 'PAGADA', 'Garantía de 3 meses por pantalla', 'EFECTIVO'),
+(@rep_id + 1, @cajero3,  55.00, 'PENDIENTE', 'Retiro pactado fin de semana', NULL),
+(@rep_id + 2, @cajero3,  45.00, 'PAGADA', 'Recomendación estuche impermeable', 'TRANSFERENCIA'),
+(@rep_id + 3, @cajero2,  30.00, 'PAGADA', 'Pin reforzado con epóxica', 'EFECTIVO'),
+(@rep_id + 4, @cajero2,  25.00, 'PAGADA', 'Solo mano de obra', 'EFECTIVO'),
+(@rep_id + 5, @cajero2,  15.00, 'PAGADA', 'Limpieza general de cortesía', 'TRANSFERENCIA'),
+(@rep_id + 6, @cajero3,  25.00, 'PAGADA', 'Pulsadores probados', 'EFECTIVO'),
+(@rep_id + 7, @cajero1,  60.00, 'PENDIENTE', 'Trabajo complejo microelectrónica', NULL),
+(@rep_id + 8, @cajero1,  40.00, 'PENDIENTE', 'No usar cargador genérico', NULL),
+(@rep_id + 9, @cajero2,  20.00, 'PAGADA', 'Flasheo exitoso', 'EFECTIVO');
 
 SET @fac_id = (SELECT id FROM factura WHERE reparacion_id = @rep_id);
-
-UPDATE factura SET estado = 'PAGADA', metodo_pago = 'EFECTIVO' WHERE id IN (@fac_id, @fac_id + 3, @fac_id + 4, @fac_id + 6, @fac_id + 9);
-UPDATE factura SET estado = 'PAGADA', metodo_pago = 'TRANSFERENCIA' WHERE id IN (@fac_id + 2, @fac_id + 5);
 
 SELECT * FROM usuario;
