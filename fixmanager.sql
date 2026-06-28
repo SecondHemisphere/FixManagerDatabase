@@ -46,7 +46,7 @@ CREATE TABLE reparacion (
     solucion VARCHAR(255) NOT NULL,
     costo_servicio DECIMAL(10,2) NOT NULL,
     costo_repuestos DECIMAL(10,2) NOT NULL,
-    piezas_usadas VARCHAR(255) NOT NULL,
+    piezas_usadas VARCHAR(255),
     estado ENUM('PENDIENTE','EN_PROCESO','FINALIZADO') DEFAULT 'PENDIENTE',
     recepcion_id INT NOT NULL UNIQUE,
     usuario_id INT NOT NULL,
