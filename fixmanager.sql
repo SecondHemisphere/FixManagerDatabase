@@ -44,6 +44,7 @@ CREATE TABLE reparacion (
     id INT AUTO_INCREMENT PRIMARY KEY,
     diagnostico VARCHAR(255) NOT NULL,
     solucion VARCHAR(255) NOT NULL,
+    costo_servicio DECIMAL(10,2) NOT NULL,
     costo_repuestos DECIMAL(10,2) NOT NULL,
     piezas_usadas VARCHAR(255) NOT NULL,
     estado ENUM('PENDIENTE','EN_PROCESO','FINALIZADO') DEFAULT 'PENDIENTE',
@@ -106,6 +107,21 @@ BEGIN
         SIGNAL SQLSTATE '45000' 
         SET MESSAGE_TEXT = 'Error: No se permite eliminar una factura pagada.';
     END IF;
+END$$
+
+CREATE TRIGGER trg_factura_before_insert
+BEFORE INSERT ON factura
+FOR EACH ROW
+BEGIN
+    DECLARE v_servicio DECIMAL(10,2);
+    DECLARE v_repuestos DECIMAL(10,2);
+
+    SELECT costo_servicio, costo_repuestos
+    INTO v_servicio, v_repuestos
+    FROM reparacion
+    WHERE id = NEW.reparacion_id;
+
+    SET NEW.costo_total = v_servicio + v_repuestos;
 END$$
 
 DELIMITER ;
@@ -222,22 +238,24 @@ INSERT INTO recepcion_entrega (equipo_id, usuario_id, problema_reportado) VALUES
 
 SET @rec_id = (SELECT id FROM recepcion_entrega WHERE equipo_id = @eq_id);
 
-INSERT INTO reparacion (diagnostico, solucion, costo_repuestos, piezas_usadas, estado, recepcion_id, usuario_id) VALUES
-('Pantalla OLED rota internamente', 'Instalación de nueva pantalla original', 65.00, 'Pantalla Samsung A54', 'PENDIENTE', @rec_id, @tecnico1),
-('Batería degradada al 68%', 'Reemplazo de batería homologada', 30.00, 'Batería iPhone 14P', 'PENDIENTE', @rec_id + 1, @tecnico2),
-('Cortocircuito menor en línea secundaria', 'Baño químico ultrasónico y resoldaje', 15.00, 'Alcohol Isopropílico', 'PENDIENTE', @rec_id + 2, @tecnico1),
-('Pistas del pin de carga desprendidas', 'Micro-soldadura de puerto tipo C', 8.00, 'Puerto Tipo C Genérico', 'PENDIENTE', @rec_id + 3, @tecnico4),
-('Flex de pantalla desconectado', 'Limpieza de conectores y sujeción', 5.00, 'Cinta térmica', 'PENDIENTE', @rec_id + 4, @tecnico1),
-('Lente protector fisurado', 'Extracción manual e instalación repuesto', 4.00, 'Lente de cámara Honor', 'PENDIENTE', @rec_id + 5, @tecnico3),
-('Flex de encendido roto en base', 'Reemplazo de componente completo', 7.00, 'Flex Power Infinix', 'PENDIENTE', @rec_id + 6, @tecnico3),
-('Módulo IC de Wi-Fi desoldado', 'Proceso de reballing al chip', 0.00, 'Esferas de estaño', 'PENDIENTE', @rec_id + 7, @tecnico2),
-('IC de carga dañado por voltaje', 'Reemplazo del integrado en placa', 12.00, 'Chip IC de carga', 'PENDIENTE', @rec_id + 8, @tecnico4),
-('Bucle de sistema por actualización', 'Carga de sistema operativo EDL', 0.00, 'Firmware Oficial', 'PENDIENTE', @rec_id + 9, @tecnico2),
-('Tapa de vidrio pulverizada', 'Instalación de tapa con B7000', 18.00, 'Tapa trasera S23U', 'PENDIENTE', @rec_id + 10, @tecnico3),
-('Micrófono obstruido por sarro', 'Cambio físico de micrófono SMD', 3.00, 'Micrófono iPhone 11', 'PENDIENTE', @rec_id + 11, @tecnico1),
-('Pin con desgaste físico interno', 'Cambio de placa de carga inferior', 6.00, 'Subplaca Redmi 10', 'PENDIENTE', @rec_id + 12, @tecnico2),
-('Batería inflada y tapa despegada', 'Instalación de repuestos nuevos', 22.00, 'Batería y Tapa A34', 'PENDIENTE', @rec_id + 13, @tecnico3),
-('Pantalla rota en esquinas curvas', 'Reemplazo de panel curvo completo', 95.00, 'Pantalla Edge 40', 'PENDIENTE', @rec_id + 14, @tecnico4);
+INSERT INTO reparacion 
+(diagnostico, solucion, costo_servicio, costo_repuestos, piezas_usadas, estado, recepcion_id, usuario_id)
+VALUES
+('Pantalla OLED rota internamente', 'Instalación de nueva pantalla original', 40.00, 65.00, 'Pantalla Samsung A54', 'PENDIENTE', @rec_id, @tecnico1),
+('Batería degradada al 68%', 'Reemplazo de batería homologada', 20.00, 30.00, 'Batería iPhone 14P', 'PENDIENTE', @rec_id + 1, @tecnico2),
+('Cortocircuito menor en línea secundaria', 'Baño químico ultrasónico y resoldaje', 10.00, 15.00, 'Alcohol Isopropílico', 'PENDIENTE', @rec_id + 2, @tecnico1),
+('Pistas del pin de carga desprendidas', 'Micro-soldadura de puerto tipo C', 5.00, 8.00, 'Puerto Tipo C Genérico', 'PENDIENTE', @rec_id + 3, @tecnico4),
+('Flex de pantalla desconectado', 'Limpieza de conectores y sujeción', 3.00, 5.00, 'Cinta térmica', 'PENDIENTE', @rec_id + 4, @tecnico1),
+('Lente protector fisurado', 'Extracción manual e instalación repuesto', 2.00, 4.00, 'Lente de cámara Honor', 'PENDIENTE', @rec_id + 5, @tecnico3),
+('Flex de encendido roto en base', 'Reemplazo de componente completo', 4.00, 7.00, 'Flex Power Infinix', 'PENDIENTE', @rec_id + 6, @tecnico3),
+('Módulo IC de Wi-Fi desoldado', 'Proceso de reballing al chip', 0.00, 0.00, 'Esferas de estaño', 'PENDIENTE', @rec_id + 7, @tecnico2),
+('IC de carga dañado por voltaje', 'Reemplazo del integrado en placa', 8.00, 12.00, 'Chip IC de carga', 'PENDIENTE', @rec_id + 8, @tecnico4),
+('Bucle de sistema por actualización', 'Carga de sistema operativo EDL', 15.00, 0.00, 'Firmware Oficial', 'PENDIENTE', @rec_id + 9, @tecnico2),
+('Tapa de vidrio pulverizada', 'Instalación de tapa con B7000', 10.00, 18.00, 'Tapa trasera S23U', 'PENDIENTE', @rec_id + 10, @tecnico3),
+('Micrófono obstruido por sarro', 'Cambio físico de micrófono SMD', 2.00, 3.00, 'Micrófono iPhone 11', 'PENDIENTE', @rec_id + 11, @tecnico1),
+('Pin con desgaste físico interno', 'Cambio de placa de carga inferior', 3.00, 6.00, 'Subplaca Redmi 10', 'PENDIENTE', @rec_id + 12, @tecnico2),
+('Batería inflada y tapa despegada', 'Instalación de repuestos nuevos', 12.00, 22.00, 'Batería y Tapa A34', 'PENDIENTE', @rec_id + 13, @tecnico3),
+('Pantalla rota en esquinas curvas', 'Reemplazo de panel curvo completo', 60.00, 95.00, 'Pantalla Edge 40', 'PENDIENTE', @rec_id + 14, @tecnico4);
 
 SET @rep_id = (SELECT id FROM reparacion WHERE recepcion_id = @rec_id);
 
@@ -245,18 +263,18 @@ UPDATE reparacion SET estado = 'FINALIZADO' WHERE id IN (@rep_id, @rep_id + 1, @
 UPDATE reparacion SET estado = 'EN_PROCESO' WHERE id IN (@rep_id + 10, @rep_id + 11, @rep_id + 12);
 
 INSERT INTO factura
-(reparacion_id, usuario_id, costo_total, estado, observaciones, metodo_pago)
+(reparacion_id, usuario_id, estado, observaciones, metodo_pago)
 VALUES
-(@rep_id,     @cajero1, 110.00, 'PAGADA', 'Garantía de 3 meses por pantalla', 'EFECTIVO'),
-(@rep_id + 1, @cajero3,  55.00, 'PENDIENTE', 'Retiro pactado fin de semana', NULL),
-(@rep_id + 2, @cajero3,  45.00, 'PAGADA', 'Recomendación estuche impermeable', 'TRANSFERENCIA'),
-(@rep_id + 3, @cajero2,  30.00, 'PAGADA', 'Pin reforzado con epóxica', 'EFECTIVO'),
-(@rep_id + 4, @cajero2,  25.00, 'PAGADA', 'Solo mano de obra', 'EFECTIVO'),
-(@rep_id + 5, @cajero2,  15.00, 'PAGADA', 'Limpieza general de cortesía', 'TRANSFERENCIA'),
-(@rep_id + 6, @cajero3,  25.00, 'PAGADA', 'Pulsadores probados', 'EFECTIVO'),
-(@rep_id + 7, @cajero1,  60.00, 'PENDIENTE', 'Trabajo complejo microelectrónica', NULL),
-(@rep_id + 8, @cajero1,  40.00, 'PENDIENTE', 'No usar cargador genérico', NULL),
-(@rep_id + 9, @cajero2,  20.00, 'PAGADA', 'Flasheo exitoso', 'EFECTIVO');
+(@rep_id,     @cajero1, 'PAGADA', 'Garantía de 3 meses por pantalla', 'EFECTIVO'),
+(@rep_id + 1, @cajero3, 'PENDIENTE', 'Retiro pactado fin de semana', NULL),
+(@rep_id + 2, @cajero3, 'PAGADA', 'Recomendación estuche impermeable', 'TRANSFERENCIA'),
+(@rep_id + 3, @cajero2, 'PAGADA', 'Pin reforzado con epóxica', 'EFECTIVO'),
+(@rep_id + 4, @cajero2, 'PAGADA', 'Solo mano de obra', 'EFECTIVO'),
+(@rep_id + 5, @cajero2, 'PAGADA', 'Limpieza general de cortesía', 'TRANSFERENCIA'),
+(@rep_id + 6, @cajero3, 'PAGADA', 'Pulsadores probados', 'EFECTIVO'),
+(@rep_id + 7, @cajero1, 'PENDIENTE', 'Trabajo complejo microelectrónica', NULL),
+(@rep_id + 8, @cajero1, 'PENDIENTE', 'No usar cargador genérico', NULL),
+(@rep_id + 9, @cajero2, 'PAGADA', 'Flasheo exitoso', 'EFECTIVO');
 
 SET @fac_id = (SELECT id FROM factura WHERE reparacion_id = @rep_id);
 
